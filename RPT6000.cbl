@@ -381,6 +381,9 @@
       * and resets the sales representative accumulators. It also rolls
       * totals into the branch totals.
        355-PRINT-SALESREP-LINE.
+           MOVE SPACES TO PRINT-AREA.
+           PERFORM 350-WRITE-REPORT-LINE.
+
            MOVE SALESREP-TOTAL-THIS-YTD TO STL-SALES-THIS-YTD.
            MOVE SALESREP-TOTAL-LAST-YTD TO STL-SALES-LAST-YTD.
            COMPUTE WS-CHANGE-AMOUNT =
@@ -396,6 +399,9 @@
 
            MOVE SALESREP-TOTAL-LINE TO PRINT-AREA.
            MOVE 1 TO SPACE-CONTROL.
+           PERFORM 350-WRITE-REPORT-LINE.
+
+           MOVE SPACES TO PRINT-AREA.
            PERFORM 350-WRITE-REPORT-LINE.
 
            MOVE 2 TO SPACE-CONTROL.
