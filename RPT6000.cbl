@@ -138,10 +138,10 @@
            05  FILLER PIC X(1)     VALUE SPACE.
            05  FILLER PIC X(26)    VALUE ALL "-".
            05  FILLER PIC X(3)     VALUE SPACE.
-           05  FILLER PIC X(11)    VALUE ALL "-".
+           05  FILLER PIC X(12)    VALUE ALL "-".
+           05  FILLER PIC X(2)     VALUE SPACE.
+           05  FILLER PIC X(12)    VALUE ALL "-".
            05  FILLER PIC X(3)     VALUE SPACE.
-           05  FILLER PIC X(11)    VALUE ALL "-".
-           05  FILLER PIC X(4)     VALUE SPACE.
            05  FILLER PIC X(11)    VALUE ALL "-".
            05  FILLER PIC X(2)     VALUE SPACE.
            05  FILLER PIC X(7)     VALUE ALL "-".
@@ -208,7 +208,7 @@
            05  GTL-CHANGE-AMOUNT    PIC $,$$$,$$9.99-.
            05  FILLER               PIC X(2)    VALUE SPACE.
            05  GTL-CHANGE-PERCENT   PIC +++9.9.
-           05  GTL-CHANGE-PERCENT-R REDEFINES GTL-CHANGE-PERCENT 
+           05  GTL-CHANGE-PERCENT-R REDEFINES GTL-CHANGE-PERCENT
                                      PIC X(6).
            05  FILLER                PIC X(31)   VALUE "***".
 
@@ -263,8 +263,8 @@
               PERFORM 355-PRINT-SALESREP-LINE
               PERFORM 360-PRINT-BRANCH-LINE
               PERFORM 320-PRINT-CUSTOMER-LINE
-      *        MOVE CM-SALESREP-NUMBER TO OLD-SALESREP-NUMBER
-      *        MOVE CM-BRANCH-NUMBER TO OLD-BRANCH-NUMBER
+              MOVE CM-SALESREP-NUMBER TO OLD-SALESREP-NUMBER
+              MOVE CM-BRANCH-NUMBER TO OLD-BRANCH-NUMBER
            WHEN CM-SALESREP-NUMBER > OLD-SALESREP-NUMBER
               PERFORM 355-PRINT-SALESREP-LINE
               PERFORM 320-PRINT-CUSTOMER-LINE
