@@ -25,24 +25,14 @@
            LABEL RECORDS ARE STANDARD
            RECORD CONTAINS 130 CHARACTERS
            BLOCK CONTAINS 130 CHARACTERS.
-       01  CUSTOMER-MASTER-RECORD.
-           05  CM-BRANCH-NUMBER        PIC 9(2).
-           05  CM-SALESREP-NUMBER      PIC 9(2).
-           05  CM-CUSTOMER-NUMBER      PIC 9(5).
-           05  CM-CUSTOMER-NAME        PIC X(20).
-           05  CM-SALES-THIS-YTD       PIC S9(5)V9(2).
-           05  CM-SALES-LAST-YTD       PIC S9(5)V9(2).
-           05  FILLER                  PIC X(87).
+       COPY CUSTMAST.
 
-       FD  INPUT-SALESREP 
+       FD  INPUT-SALESREP
            RECORDING MODE IS F
            LABEL RECORDS ARE STANDARD
            RECORD CONTAINS 130 CHARACTERS
            BLOCK CONTAINS 130 CHARACTERS.
-       01  SALESREP-MASTER-RECORD.
-           05  SM-SALESREP-NUMBER     PIC 9(2).
-           05  SM-SALESREP-NAME       PIC X(10).
-           05  FILLER                 PIC X(118).
+       COPY SALESREP.
 
        FD  OUTPUT-RPT6000
            RECORDING MODE IS F
@@ -54,7 +44,7 @@
 
        WORKING-STORAGE SECTION.
 
-       01 SALESREP-TABLE.  
+       01 SALESREP-TABLE.
            05  SALESREP-GROUP OCCURS 100 TIMES
                              INDEXED BY SRT-INDEX.
               10  SALESREP-NUMBER PIC 9(2).
@@ -237,20 +227,20 @@
            INITIALIZE SALESREP-TABLE.
 
            OPEN INPUT  INPUT-CUSTMAST
-           OPEN INPUT  INPUT-SALESREP 
+           OPEN INPUT  INPUT-SALESREP
                 OUTPUT OUTPUT-RPT6000.
-           
+
            PERFORM 100-FORMAT-REPORT-HEADING.
 
            PERFORM 200-LOAD-SALESREP-TABLE.
 
            PERFORM 300-PREPARE-SALES-LINES
                UNTIL CUSTMAST-EOF.
-           
+
            PERFORM 500-PRINT-GRAND-TOTALS.
-           
+
            CLOSE INPUT-CUSTMAST
-                 INPUT-SALESREP 
+                 INPUT-SALESREP
                  OUTPUT-RPT6000.
            STOP RUN.
 
@@ -275,14 +265,14 @@
               UNTIL SALESREP-EOF OR SRT-INDEX = 100
                    PERFORM 210-READ-SALESREP-TABLE-RECORD
                    IF NOT SALESREP-EOF
-                       MOVE SM-SALESREP-NUMBER    
+                       MOVE SM-SALESREP-NUMBER
                           TO SALESREP-NUMBER (SRT-INDEX)
-                       MOVE SM-SALESREP-NAME 
+                       MOVE SM-SALESREP-NAME
                           TO SALESREP-NAME (SRT-INDEX)
                     END-IF
            END-PERFORM.
 
-              
+
        210-READ-SALESREP-TABLE-RECORD.
            READ INPUT-SALESREP
               AT END
