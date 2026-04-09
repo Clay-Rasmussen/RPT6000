@@ -274,7 +274,14 @@
            MOVE CD-HOURS   TO HL2-HOURS.
            MOVE CD-MINUTES TO HL2-MINUTES.
 
-
+      * The paragraph 200-LOAD-SALESREP-TABLE loads sales representative
+      * records from an input file into an array. It loops through the
+      * file using SRT-INDEX, starting at 1 and increasing by 1 each
+      * time, until either the end of the file is reached (SALESREP-EOF)
+      * or the table limit of 100 entries is reached. In each loop, it
+      * calls paragraph 210-READ-SALESREP-TABLE-RECORD to read a record.
+      * If a record is successfully read, it stores the sales rep number
+      * and name into the corresponding array positions.
        200-LOAD-SALESREP-TABLE.
            PERFORM
               WITH TEST AFTER
@@ -289,7 +296,15 @@
                     END-IF
            END-PERFORM.
 
-
+      * The paragraph 210-READ-SALESREP-TABLE-RECORD is responsible for
+      * reading a single record from the input file INPUT-SALESREP. It
+      * performs a READ operation and checks for the end-of-file
+      * condition. If the end of the file is reached, it sets the
+      * SALESREP-EOF flag to TRUE, which signals to the calling
+      * paragraph that no more records are available. If the end of
+      * file is not reached, the record is read successfully into the
+      * program’s input fields, making the data available for processing
+      * and storage in the table.
        210-READ-SALESREP-TABLE-RECORD.
            READ INPUT-SALESREP
               AT END
@@ -380,6 +395,14 @@
            MOVE CM-SALESREP-NUMBER TO OLD-SALESREP-NUMBER.
            MOVE CM-BRANCH-NUMBER TO OLD-BRANCH-NUMBER.
 
+      * The paragraph 325-MOVE-SALESREP-NAME searches the sales
+      * representative table to find a matching sales rep number.
+      * It starts by setting SRT-INDEX to 1, then performs a SEARCH on
+      * the SALESREP-GROUP table. If a matching SALESREP-NUMBER is
+      * found, it moves the corresponding SALESREP-NAME from the table
+      * into CL-SALESREP-NAME. If no match is found after searching the
+      * entire table, it assigns the value "UNKNOWN" to
+      * CL-SALESREP-NAME.
        325-MOVE-SALESREP-NAME.
            SET SRT-INDEX TO 1.
            SEARCH SALESREP-GROUP
