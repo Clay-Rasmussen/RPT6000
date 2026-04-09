@@ -5,7 +5,24 @@
       *  Programmers: Clay Rasmussen
       *  Date.......: April **, 2025
       *  GitHub URL.: https://github.com/Clay-Rasmussen/RPT6000
-      *  Description:
+      *  Description: Chapters 6, 10, and 11 build on core COBOL skills
+      *  by focusing on data formatting, table processing, and program 
+      *  modularization. Chapter 6 introduces advanced report
+      *  formatting techniques, including edited picture clauses, the 
+      *  REDEFINES statement, and packed decimal fields, allowing 
+      *  programs to display numeric data in a user-friendly format 
+      *  while also handling special cases like "N/A" and overflow 
+      *  conditions. Chapter 10 expands on data handling by introducing
+      *  tables with the OCCURS clause, along with indexed access and
+      *  the SEARCH statement, enabling efficient lookup of values such
+      *  as SALESREP names and transitioning from hardcoded data to 
+      *  file-driven tables. Chapter 11 emphasizes modular design 
+      *  through the use of copybooks (COPYLIB), allowing developers to
+      *  reuse data structures across programs and simplify maintenance.
+      *  Together, these chapters reinforce structured programming 
+      *  practices, improve data organization, and enhance the 
+      *  flexibility and scalability of COBOL applications.
+
       *****************************************************************
 
        ENVIRONMENT DIVISION.
