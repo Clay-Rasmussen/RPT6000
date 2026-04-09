@@ -6,23 +6,22 @@
       *  Date.......: April **, 2025
       *  GitHub URL.: https://github.com/Clay-Rasmussen/RPT6000
       *  Description: Chapters 6, 10, and 11 build on core COBOL skills
-      *  by focusing on data formatting, table processing, and program 
+      *  by focusing on data formatting, table processing, and program
       *  modularization. Chapter 6 introduces advanced report
-      *  formatting techniques, including edited picture clauses, the 
-      *  REDEFINES statement, and packed decimal fields, allowing 
-      *  programs to display numeric data in a user-friendly format 
-      *  while also handling special cases like "N/A" and overflow 
+      *  formatting techniques, including edited picture clauses, the
+      *  REDEFINES statement, and packed decimal fields, allowing
+      *  programs to display numeric data in a user-friendly format
+      *  while also handling special cases like "N/A" and overflow
       *  conditions. Chapter 10 expands on data handling by introducing
       *  tables with the OCCURS clause, along with indexed access and
       *  the SEARCH statement, enabling efficient lookup of values such
-      *  as SALESREP names and transitioning from hardcoded data to 
-      *  file-driven tables. Chapter 11 emphasizes modular design 
+      *  as SALESREP names and transitioning from hardcoded data to
+      *  file-driven tables. Chapter 11 emphasizes modular design
       *  through the use of copybooks (COPYLIB), allowing developers to
       *  reuse data structures across programs and simplify maintenance.
-      *  Together, these chapters reinforce structured programming 
-      *  practices, improve data organization, and enhance the 
+      *  Together, these chapters reinforce structured programming
+      *  practices, improve data organization, and enhance the
       *  flexibility and scalability of COBOL applications.
-
       *****************************************************************
 
        ENVIRONMENT DIVISION.
@@ -303,7 +302,7 @@
       * SALESREP-EOF flag to TRUE, which signals to the calling
       * paragraph that no more records are available. If the end of
       * file is not reached, the record is read successfully into the
-      * program’s input fields, making the data available for processing
+      * programs input fields, making the data available for processing
       * and storage in the table.
        210-READ-SALESREP-TABLE-RECORD.
            READ INPUT-SALESREP
@@ -358,13 +357,18 @@
            IF LINE-COUNT >= LINES-ON-PAGE
               PERFORM 330-PRINT-HEADING-LINES.
 
-           IF CM-BRANCH-NUMBER NOT = OLD-BRANCH-NUMBER
+           IF FIRST-RECORD OR CM-BRANCH-NUMBER > OLD-BRANCH-NUMBER
                 MOVE CM-BRANCH-NUMBER TO CL-BRANCH-NUMBER
+                MOVE CM-SALESREP-NUMBER TO CL-SALESREP-NUMBER
                 PERFORM 325-MOVE-SALESREP-NAME
            ELSE
-                MOVE SPACES TO CL-BRANCH-NUMBER.
-                PERFORM 325-MOVE-SALESREP-NAME.
-
+                MOVE SPACES TO CL-BRANCH-NUMBER
+                IF CM-SALESREP-NUMBER > OLD-SALESREP-NUMBER   
+                   MOVE CM-SALESREP-NUMBER TO CL-SALESREP-NUMBER 
+                   PERFORM 325-MOVE-SALESREP-NAME
+                ELSE 
+                   MOVE SPACE TO CL-SALESREP-NUMBER 
+                   MOVE SPACE TO CL-SALESREP-NAME.
 
            IF CM-SALESREP-NUMBER NOT = OLD-SALESREP-NUMBER
               MOVE CM-SALESREP-NUMBER TO CL-SALESREP-NUMBER
