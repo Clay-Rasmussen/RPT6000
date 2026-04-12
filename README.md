@@ -124,7 +124,7 @@ ___
 
 ## Running Output
 ___
-![Code Running](assets/RPT6000RunningOut.png)
+![Code Running](assets/RPT6000RunningOutputFinal.png)
 
 ## Learning Outcomes
 ___
