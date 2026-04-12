@@ -3,7 +3,7 @@
        PROGRAM-ID. RPT6000.
       *****************************************************************
       *  Programmers: Clay Rasmussen
-      *  Date.......: April **, 2025
+      *  Date.......: April 11, 2025
       *  GitHub URL.: https://github.com/Clay-Rasmussen/RPT6000
       *  Description: Chapters 6, 10, and 11 build on core COBOL skills
       *  by focusing on data formatting, table processing, and program
@@ -55,7 +55,6 @@
            LABEL RECORDS ARE STANDARD
            RECORD CONTAINS 130 CHARACTERS
            BLOCK CONTAINS 130 CHARACTERS.
-
        01  PRINT-AREA      PIC X(130).
 
        WORKING-STORAGE SECTION.
@@ -67,16 +66,16 @@
               10  SALESREP-NAME   PIC X(10).
               05 FILLER           PIC X(118).
 
-
        01  SWITCHES.
            05  SALESREP-EOF-SWITCH     PIC X    VALUE "N".
               88 SALESREP-EOF                   VALUE "Y".
            05  CUSTMAST-EOF-SWITCH     PIC X    VALUE "N".
               88 CUSTMAST-EOF                   VALUE "Y".
            05  FIRST-RECORD-SWITCH     PIC X    VALUE "Y".
-              88 NOT-FIRST-RECORD               VALUE "N".
+              88 FIRST-RECORD                   VALUE "Y"
+                 WHEN FALSE IS                        "N".
 
-       01  CONTROL-FIELDS.
+       01  CONTROL-FIELDS PACKED-DECIMAL.
            05  OLD-SALESREP-NUMBER     PIC 99.
            05  OLD-BRANCH-NUMBER       PIC 99.
 
@@ -239,7 +238,6 @@
       * execution.
        PROCEDURE DIVISION.
        000-PREPARE-SALES-REPORT.
-
            INITIALIZE SALESREP-TABLE.
 
            OPEN INPUT  INPUT-CUSTMAST
@@ -282,17 +280,16 @@
       * If a record is successfully read, it stores the sales rep number
       * and name into the corresponding array positions.
        200-LOAD-SALESREP-TABLE.
-           PERFORM
-              WITH TEST AFTER
+           PERFORM WITH TEST AFTER
               VARYING SRT-INDEX FROM 1 BY 1
               UNTIL SALESREP-EOF OR SRT-INDEX = 100
                    PERFORM 210-READ-SALESREP-TABLE-RECORD
                    IF NOT SALESREP-EOF
                        MOVE SM-SALESREP-NUMBER
-                          TO SALESREP-NUMBER (SRT-INDEX)
+                            TO SALESREP-NUMBER (SRT-INDEX)
                        MOVE SM-SALESREP-NAME
-                          TO SALESREP-NAME (SRT-INDEX)
-                    END-IF
+                            TO SALESREP-NAME (SRT-INDEX)
+                   END-IF
            END-PERFORM.
 
       * The paragraph 210-READ-SALESREP-TABLE-RECORD is responsible for
@@ -319,9 +316,9 @@
               WHEN CUSTMAST-EOF
                 PERFORM 355-PRINT-SALESREP-LINE
                 PERFORM 360-PRINT-BRANCH-LINE
-           WHEN FIRST-RECORD-SWITCH = "Y"
+           WHEN FIRST-RECORD
               PERFORM 320-PRINT-CUSTOMER-LINE
-              MOVE "N" TO FIRST-RECORD-SWITCH
+              SET FIRST-RECORD TO FALSE
               MOVE CM-SALESREP-NUMBER TO OLD-SALESREP-NUMBER
               MOVE CM-BRANCH-NUMBER TO OLD-BRANCH-NUMBER
            WHEN CM-BRANCH-NUMBER > OLD-BRANCH-NUMBER
@@ -330,7 +327,7 @@
               PERFORM 320-PRINT-CUSTOMER-LINE
               MOVE CM-SALESREP-NUMBER TO OLD-SALESREP-NUMBER
               MOVE CM-BRANCH-NUMBER TO OLD-BRANCH-NUMBER
-           WHEN CM-SALESREP-NUMBER > OLD-SALESREP-NUMBER
+           WHEN NOT (CM-SALESREP-NUMBER = OLD-SALESREP-NUMBER)
               PERFORM 355-PRINT-SALESREP-LINE
               PERFORM 320-PRINT-CUSTOMER-LINE
               MOVE CM-SALESREP-NUMBER TO OLD-SALESREP-NUMBER
@@ -345,8 +342,7 @@
        310-READ-CUSTOMER-RECORD.
            READ INPUT-CUSTMAST
               AT END
-                 SET CUSTMAST-EOF TO TRUE.
-
+                 MOVE "Y" TO CUSTMAST-EOF-SWITCH.
 
       * This paragraph formats and prints a single customer detail line.
       * It handles pagination, moves customer data into print fields,
@@ -357,47 +353,53 @@
            IF LINE-COUNT >= LINES-ON-PAGE
               PERFORM 330-PRINT-HEADING-LINES.
 
-           IF FIRST-RECORD OR CM-BRANCH-NUMBER > OLD-BRANCH-NUMBER
-                MOVE CM-BRANCH-NUMBER TO CL-BRANCH-NUMBER
-                MOVE CM-SALESREP-NUMBER TO CL-SALESREP-NUMBER
-                PERFORM 325-MOVE-SALESREP-NAME
-           ELSE
-                MOVE SPACES TO CL-BRANCH-NUMBER
-                IF CM-SALESREP-NUMBER > OLD-SALESREP-NUMBER   
-                   MOVE CM-SALESREP-NUMBER TO CL-SALESREP-NUMBER 
-                   PERFORM 325-MOVE-SALESREP-NAME
-                ELSE 
-                   MOVE SPACE TO CL-SALESREP-NUMBER 
-                   MOVE SPACE TO CL-SALESREP-NAME.
-
-           IF CM-SALESREP-NUMBER NOT = OLD-SALESREP-NUMBER
-              MOVE CM-SALESREP-NUMBER TO CL-SALESREP-NUMBER
-              PERFORM 325-MOVE-SALESREP-NAME
-           ELSE
-              MOVE SPACES TO CL-SALESREP-NUMBER.
-              PERFORM 325-MOVE-SALESREP-NAME.
+           EVALUATE TRUE 
+              WHEN FIRST-RECORD 
+                 MOVE CM-BRANCH-NUMBER TO CL-BRANCH-NUMBER
+                 MOVE CM-SALESREP-NUMBER TO CL-SALESREP-NUMBER
+                 PERFORM 325-MOVE-SALESREP-NAME
+              WHEN CM-BRANCH-NUMBER > OLD-BRANCH-NUMBER    
+                 MOVE CM-BRANCH-NUMBER TO CL-BRANCH-NUMBER 
+                 MOVE CM-SALESREP-NUMBER TO CL-BRANCH-NUMBER 
+                 PERFORM 325-MOVE-SALESREP-NAME
+              WHEN NOT (CM-SALESREP-NUMBER = OLD-SALESREP-NUMBER)
+                 MOVE CM-SALESREP-NUMBER TO CL-SALESREP-NUMBER 
+                 PERFORM 325-MOVE-SALESREP-NAME
+                 MOVE SPACES TO CL-BRANCH-NUMBER 
+              WHEN OTHER 
+                 MOVE SPACES TO CL-BRANCH-NUMBER 
+                 MOVE SPACES TO CL-SALESREP-NUMBER
+                 MOVE SPACES TO CL-SALESREP-NAME
+           END-EVALUATE.
 
            MOVE CM-CUSTOMER-NUMBER TO CL-CUSTOMER-NUMBER.
            MOVE CM-CUSTOMER-NAME TO CL-CUSTOMER-NAME.
            MOVE CM-SALES-THIS-YTD TO CL-SALES-THIS-YTD.
            MOVE CM-SALES-LAST-YTD TO CL-SALES-LAST-YTD.
+
            COMPUTE WS-CHANGE-AMOUNT =
               CM-SALES-THIS-YTD - CM-SALES-LAST-YTD.
            MOVE WS-CHANGE-AMOUNT TO CL-CHANGE-AMOUNT.
+
            IF CM-SALES-LAST-YTD = ZERO
               MOVE "  N/A " TO CL-CHANGE-PERCENT-R
            ELSE
               COMPUTE CL-CHANGE-PERCENT ROUNDED =
                  WS-CHANGE-AMOUNT * 100 / CM-SALES-LAST-YTD
                  ON SIZE ERROR
-                    MOVE "OVRFLW" TO CL-CHANGE-PERCENT-R.
+                    MOVE "OVRFLW" TO CL-CHANGE-PERCENT-R. 
+
            MOVE CUSTOMER-LINE TO PRINT-AREA.
            PERFORM 350-WRITE-REPORT-LINE.
            MOVE 1 TO SPACE-CONTROL.
+
            ADD CM-SALES-THIS-YTD TO SALESREP-TOTAL-THIS-YTD.
-           ADD CM-SALES-LAST-YTD TO SALESREP-TOTAL-LAST-YTD.
-           MOVE CM-SALESREP-NUMBER TO OLD-SALESREP-NUMBER.
-           MOVE CM-BRANCH-NUMBER TO OLD-BRANCH-NUMBER.
+           ADD CM-SALES-LAST-YTD TO SALESREP-TOTAL-LAST-YTD.    
+    
+
+
+      *     MOVE CM-SALESREP-NUMBER TO OLD-SALESREP-NUMBER.
+      *     MOVE CM-BRANCH-NUMBER TO OLD-BRANCH-NUMBER.
 
       * The paragraph 325-MOVE-SALESREP-NAME searches the sales
       * representative table to find a matching sales rep number.
